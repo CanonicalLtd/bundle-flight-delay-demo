@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -ex
+
+juju bootstrap 
+juju deploy --to 0 juju-gui
+juju expose juju-gui
+
+juju deploy --constraints "mem=16G cpu-cores=4 root-disk=128G" hdp-hadoop yarn-master
+juju deploy --constraints "mem=16G cpu-cores=4 root-disk=128G" hdp-hadoop compute-node
+juju set-constraints --service compute-node mem=16G cpu-cores=4 root-disk=128G
+
+juju add-relation yarn-master:namenode compute-node:datanode
+juju add-relation yarn-master:resourcemanager compute-node:nodemanager
+
+sleep 60 # this is to make sure that the yarn-master has a proper machine before installing the notebook & pig
+TARGET_MACHINE=$(juju stat | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' | jq '.services."yarn-master".units."yarn-master/0".machine' | tr -d "\"" )
+echo "We will install ipython-notebook and pig on machine $TARGET_MACHINE"
+
+juju add-unit -n3 compute-node
+juju deploy --to $TARGET_MACHINE cs:~samuel-cozannet/trusty/ipython-notebook
+juju expose ipython-notebook
+
+juju deploy --to $TARGET_MACHINE hdp-pig hdp-pig
+juju add-relation hdp-pig:namenode yarn-master:namenode
+juju add-relation hdp-pig:resourcemanager yarn-master:resourcemanager
+
+juju deploy cs:~samuel-cozannet/trusty/flight-delay-demo
+juju add-relation flight-delay-demo ipython-notebook
+
+

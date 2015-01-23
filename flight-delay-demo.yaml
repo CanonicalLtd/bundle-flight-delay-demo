@@ -1,0 +1,53 @@
+envExport: 
+  services: 
+    "flight-delay-demo": 
+      charm: "cs:~samuel-cozannet/trusty/flight-delay-demo"
+      num_units: 0
+      options: 
+        profile: spark
+      annotations: 
+        "gui-x": "1000"
+        "gui-y": "950"
+    "yarn-master": 
+      charm: "cs:trusty/hdp-hadoop"
+      num_units: 1
+      constraints: "cpu-cores=4 mem=16384 root-disk=131072"
+      annotations: 
+        "gui-x": "700"
+        "gui-y": "650"
+      to: 
+        - "ipython-notebook=0"
+    "compute-node": 
+      charm: "cs:trusty/hdp-hadoop-7"
+      num_units: 4
+      constraints: "cpu-cores=4 mem=16384 root-disk=131072"
+      annotations: 
+        "gui-x": "700"
+        "gui-y": "400"
+    "hdp-pig": 
+      charm: "cs:trusty/hdp-pig-4"
+      num_units: 1
+      annotations: 
+        "gui-x": "400"
+        "gui-y": "650"
+      to: 
+        - "ipython-notebook=0"
+    "ipython-notebook": 
+      charm: "cs:~samuel-cozannet/trusty/ipython-notebook"
+      num_units: 1
+      expose: true
+      annotations: 
+        "gui-x": "700"
+        "gui-y": "950"
+  relations: 
+    - - "yarn-master:namenode"
+      - "compute-node:datanode"
+    - - "yarn-master:resourcemanager"
+      - "compute-node:nodemanager"
+    - - "hdp-pig:namenode"
+      - "yarn-master:namenode"
+    - - "hdp-pig:resourcemanager"
+      - "yarn-master:resourcemanager"
+    - - "flight-delay-demo:notebook"
+      - "ipython-notebook:notebook"
+  series: trusty
