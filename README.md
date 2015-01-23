@@ -188,7 +188,7 @@ juju stat | python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), s
 
 ## Author's notes
 
-First of all, most the credit is to give to Ofer Mendelevitch and Beau Plath @Hortonworks who did all the Data Science. I would have ported it to Ubuntu and Juju if they add not produced it in the first place. I hope this work will also be interesting to them. 
+First of all, most the credit is to give to Ofer Mendelevitch and Beau Plath @Hortonworks who did all the Data Science. I would not have ported it to Ubuntu and Juju if they add not produced it in the first place. I hope this work will also be interesting to them. 
 
 I hope you will enjoy Juju as a great tool to create demos and Data Science hackathons. It's a great tool to reproduce complex, distributed environments in a cloud agnostic manner. This results in being perfect to setup hackathon VMs so that all players are on the base (deploy XX units of ipython-notebook on a public cloud) and/or client demos. 
 
